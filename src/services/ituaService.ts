@@ -1,7 +1,13 @@
 import axios from "axios";
 import { DepartmentResponse } from "../types/departments";
 import { IUsersCompanyCollection } from "../types/usersCompanyCollection";
-import { getToken } from "../utils/tokenHelper";
+import {
+  getToken,
+  getRefreshToken,
+  saveTokens,
+  removeTokens,
+} from "../utils/tokenHelper";
+import authStore from "../stores/AuthStore";
 
 const axiosInstance = axios.create({
   baseURL: "https://demo2-uk.prod.itua.in.ua/core_api",
@@ -9,6 +15,26 @@ const axiosInstance = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+const refreshAccessToken = async (): Promise<string | null> => {
+  try {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) throw new Error("No refresh token available");
+
+    const response = await axiosInstance.post("/auth/refresh_token", {
+      refresh_token: refreshToken,
+    });
+
+    const { token, refresh_token } = response.data;
+    saveTokens(token, refresh_token);
+    return token;
+  } catch (error) {
+    console.error("Failed to refresh token:", error);
+    removeTokens();
+    authStore.logout();
+    return null;
+  }
+};
 
 axiosInstance.interceptors.request.use(
   (config) => {
@@ -18,7 +44,27 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
+  (error) => Promise.reject(error)
+);
+
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      error.response.data.message === "Expired JWT Token"
+    ) {
+      const newToken = await refreshAccessToken();
+
+      if (newToken) {
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        return axiosInstance(originalRequest);
+      }
+    }
+
     return Promise.reject(error);
   }
 );

@@ -1,6 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import { signIn } from "../services/ituaService";
-import { saveToken, removeToken } from "../utils/tokenHelper";
+import { saveTokens, removeTokens } from "../utils/tokenHelper";
 
 class AuthStore {
   token: string | null = null;
@@ -13,10 +13,10 @@ class AuthStore {
   async login(login: string, password: string) {
     try {
       const response = await signIn(login, password);
-      if (response.token) {
+      if (response.token && response.refresh_token) {
         this.token = response.token;
         this.isAuthenticated = true;
-        saveToken(response.token);
+        saveTokens(response.token, response.refresh_token);
       } else {
         throw new Error("Невірний логін або пароль");
       }
@@ -32,7 +32,7 @@ class AuthStore {
   logout() {
     this.token = null;
     this.isAuthenticated = false;
-    removeToken();
+    removeTokens();
   }
 
   loadToken() {
