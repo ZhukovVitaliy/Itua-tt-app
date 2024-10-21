@@ -7,7 +7,7 @@ import {
   saveTokens,
   removeTokens,
 } from "../utils/tokenHelper";
-import authStore from "../stores/AuthStore";
+import authStore from "../stores/authStore";
 
 const axiosInstance = axios.create({
   baseURL: "https://demo2-uk.prod.itua.in.ua/core_api",
