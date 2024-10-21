@@ -16,6 +16,20 @@ const axiosInstance = axios.create({
   },
 });
 
+let isRefreshing = false; // Флаг для отслеживания процесса обновления токена
+let failedQueue: any[] = []; // Очередь для повторных запросов
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
 const refreshAccessToken = async (): Promise<string | null> => {
   try {
     const refreshToken = getRefreshToken();
@@ -55,13 +69,36 @@ axiosInstance.interceptors.response.use(
     if (
       error.response &&
       error.response.status === 401 &&
-      error.response.data.message === "Expired JWT Token"
+      error.response.data.message === "Expired JWT Token" &&
+      !originalRequest._retry
     ) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return axiosInstance(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
       const newToken = await refreshAccessToken();
 
       if (newToken) {
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        processQueue(null, newToken); // Обрабатываем очередь запросов
+        isRefreshing = false;
         return axiosInstance(originalRequest);
+      } else {
+        processQueue(new Error("Failed to refresh token"), null);
+        isRefreshing = false;
+        return Promise.reject(error);
       }
     }
 
