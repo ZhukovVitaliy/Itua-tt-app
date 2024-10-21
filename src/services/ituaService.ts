@@ -1,5 +1,4 @@
 import axios from "axios";
-
 import { DepartmentResponse } from "../types/departments";
 import { IUsersCompanyCollection } from "../types/usersCompanyCollection";
 import { getToken } from "../utils/tokenHelper";
@@ -34,7 +33,7 @@ const handleRequestError = (error: any) => {
   }
 };
 
-export const signIn = async (login: string, password: string) => {
+export const signIn = async (login: string, password: string): Promise<any> => {
   try {
     const response = await axiosInstance.post("/auth/login", {
       login,
@@ -43,35 +42,40 @@ export const signIn = async (login: string, password: string) => {
     return response.data;
   } catch (error) {
     handleRequestError(error);
+    return null;
   }
 };
 
-export const getAllEmployees = async (): Promise<IUsersCompanyCollection> => {
-  try {
-    const response = await axiosInstance.get("/company/users");
-    return response.data as IUsersCompanyCollection;
-  } catch (error) {
-    handleRequestError(error);
-  }
-};
+export const getAllEmployees =
+  async (): Promise<IUsersCompanyCollection | null> => {
+    try {
+      const response = await axiosInstance.get("/company/users");
+      return response.data as IUsersCompanyCollection;
+    } catch (error) {
+      handleRequestError(error);
+      return null;
+    }
+  };
 
 export const getFilterEmployees = async (
   filters: Record<string, string>
-): Promise<IUsersCompanyCollection> => {
+): Promise<IUsersCompanyCollection | null> => {
   try {
     const queryParams = new URLSearchParams(filters).toString();
     const response = await axiosInstance.get(`/company/users?${queryParams}`);
     return response.data as IUsersCompanyCollection;
   } catch (error) {
     handleRequestError(error);
+    return null;
   }
 };
 
-export const getDepartments = async (): Promise<DepartmentResponse> => {
+export const getDepartments = async (): Promise<DepartmentResponse | null> => {
   try {
     const response = await axiosInstance.get("/company/departments");
     return response.data as DepartmentResponse;
   } catch (error) {
     handleRequestError(error);
+    return null;
   }
 };

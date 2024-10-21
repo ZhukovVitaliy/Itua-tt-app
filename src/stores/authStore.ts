@@ -21,7 +21,11 @@ class AuthStore {
         throw new Error("Невірний логін або пароль");
       }
     } catch (error) {
-      throw new Error(error.message || "Помилка авторизації");
+      if (error instanceof Error) {
+        throw new Error(error.message || "Помилка авторизації");
+      } else {
+        throw new Error("Невідома помилка авторизації");
+      }
     }
   }
 

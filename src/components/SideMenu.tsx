@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
-import { Menu } from "antd";
+import { Menu, MenuProps } from "antd";
 import { HomeOutlined } from "@ant-design/icons";
 
-import authStore from "../stores/AuthStore";
+import authStore from "../stores/authStore";
 
 const SideMenu: React.FC = observer(() => {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ const SideMenu: React.FC = observer(() => {
     authStore.isAuthenticated
       ? { key: "/logout", label: "Sign Out", style: { marginLeft: "auto" } }
       : { key: "/singin", label: "Sign In", style: { marginLeft: "auto" } },
-  ].filter(Boolean);
+  ].filter(Boolean) as MenuProps["items"];
 
   return (
     <Menu

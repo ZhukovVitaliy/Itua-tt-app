@@ -11,8 +11,12 @@ class DepartmentStore {
 
   async fetchDepartments() {
     try {
-      const data: DepartmentResponse = await getDepartments();
-      this.departments = data["hydra:member"];
+      const data: DepartmentResponse | null = await getDepartments();
+      if (data) {
+        this.departments = data["hydra:member"];
+      } else {
+        console.error("No data received for departments");
+      }
     } catch (error) {
       console.error("Failed to fetch departments", error);
     }

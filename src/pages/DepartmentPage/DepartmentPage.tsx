@@ -24,7 +24,11 @@ const buildTreeData = (departments: Department[]): TreeNode[] => {
   const treeData: Department[] = [];
 
   departments.forEach((dept) => {
-    if (dept.parent && deptMap[dept.parent.id]) {
+    if (
+      dept.parent &&
+      typeof dept.parent === "object" &&
+      deptMap[dept.parent.id]
+    ) {
       deptMap[dept.parent.id].children.push(deptMap[dept.id]);
     } else {
       treeData.push(deptMap[dept.id]);
@@ -65,7 +69,9 @@ const buildTreeData = (departments: Department[]): TreeNode[] => {
         </div>
       ),
       key: `dept-${department.id}`,
-      children: convertToTreeNodes(department.children),
+      children: department.children
+        ? convertToTreeNodes(department.children)
+        : [],
     }));
   };
 

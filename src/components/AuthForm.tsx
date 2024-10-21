@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { Form, Input, Button, Spin, Alert } from "antd";
-import authStore from "../stores/AuthStore";
+import authStore from "../stores/authStore";
 import { useNavigate } from "react-router-dom";
 
 const AuthForm = observer(() => {
@@ -31,12 +31,19 @@ const AuthForm = observer(() => {
   return (
     <Form>
       <Form.Item label="Логин">
-        <Input value={login} onChange={(e) => setLogin(e.target.value)} />
+        <Input
+          value={login}
+          onChange={(e: { target: { value: string } }) =>
+            setLogin(e.target.value)
+          }
+        />
       </Form.Item>
       <Form.Item label="Пароль">
         <Input.Password
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e: { target: { value: string } }) =>
+            setPassword(e.target.value)
+          }
         />
       </Form.Item>
 

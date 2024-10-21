@@ -15,9 +15,13 @@ class EmployeeStore {
 
   async fetchAllEmployees() {
     try {
-      const data: IUsersCompanyCollection = await getAllEmployees();
-      this.employees = data["hydra:member"];
-      this.filteredEmployees = this.employees;
+      const data: IUsersCompanyCollection | null = await getAllEmployees();
+      if (data) {
+        this.employees = data["hydra:member"];
+        this.filteredEmployees = this.employees;
+      } else {
+        console.error("No data received for employees");
+      }
     } catch (error) {
       console.error("Failed to fetch employees", error);
     }
@@ -25,8 +29,14 @@ class EmployeeStore {
 
   async fetchFilteredEmployees(filters: Record<string, string>) {
     try {
-      const data: IUsersCompanyCollection = await getFilterEmployees(filters);
-      this.filteredEmployees = data["hydra:member"];
+      const data: IUsersCompanyCollection | null = await getFilterEmployees(
+        filters
+      );
+      if (data) {
+        this.filteredEmployees = data["hydra:member"];
+      } else {
+        console.error("No data received for filtered employees");
+      }
     } catch (error) {
       console.error("Failed to fetch filtered employees", error);
     }

@@ -40,7 +40,7 @@ export interface CreatedBy extends User {}
 export interface UpdatedBy extends User {}
 
 export interface Department {
-  children(children: any): TreeNode[];
+  children?: Department[];
   "@id": string;
   "@type": string;
   "@context": string;
@@ -50,13 +50,13 @@ export interface Department {
   sorting: number;
   isActive: boolean;
   isMain: boolean;
-  chief: Chief;
-  users: User[];
+  chief?: Chief;
+  users?: User[];
   lft: number;
   lvl: number;
   rgt: number;
   root: string;
-  parent: string;
+  parent?: string | { id: number };
   isRemoved: boolean;
   createdBy: CreatedBy;
   createdAt: string;
