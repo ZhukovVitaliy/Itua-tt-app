@@ -16,8 +16,8 @@ const axiosInstance = axios.create({
   },
 });
 
-let isRefreshing = false; // Флаг для отслеживания процесса обновления токена
-let failedQueue: any[] = []; // Очередь для повторных запросов
+let isRefreshing = false;
+let failedQueue: any[] = [];
 
 const processQueue = (error: any, token: string | null = null) => {
   failedQueue.forEach((prom) => {
@@ -92,7 +92,7 @@ axiosInstance.interceptors.response.use(
 
       if (newToken) {
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        processQueue(null, newToken); // Обрабатываем очередь запросов
+        processQueue(null, newToken);
         isRefreshing = false;
         return axiosInstance(originalRequest);
       } else {
